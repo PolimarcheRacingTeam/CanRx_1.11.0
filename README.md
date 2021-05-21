@@ -73,3 +73,35 @@ In this part Three other files are important
 - stm32f3xx_hal_can.c (Drivers/STM32F3xx_HAL_Driver/Src/ HERE)
 - m32f3xx_hal_can.h (Drivers/STM32F3xx_HAL_Driver/Inc/ HERE)
 
+In the /* USER CODE BEGIN PV */
+
+```
+CAN_FilterTypeDef sFilterConfig ;
+CAN_TxHeaderTypeDef TxHeader;
+CAN_RxHeaderTypeDef RxHeader;
+uint8_t Data; 
+```
+
+ In the /* USER CODE BEGIN 2 */
+
+```
+HAL_CAN_Start(&hcan); // This start all the CAN Functions
+// now we configure a standard filter (no filtering)
+sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
+sFilterConfig.FilterIdHigh = 0x0000;
+sFilterConfig.FilterIdLow = 0x0000;
+sFilterConfig.FilterMaskIdHigh = 0x0000;
+sFilterConfig.FilterMaskIdLow= 0x0000;
+sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+sFilterConfig.FilterActivation = ENABLE; //Can't be disabled, can wouldn't work
+sFilterConfig.FilterBank = 0;
+
+HAL_CAN_ConfigFilter(&hcan, &sFilterConfig);
+
+HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING); //This activate //callbacks function
+
+```
+
+Now we go to the _stm32f3xx_it.c_ file, this one is responsible for every Interrupt Service Rotuine
+
