@@ -217,8 +217,11 @@ void CAN_RX0_IRQHandler(void)
 
 		CAN_TxHeaderTypeDef TxHeader;
 		uint32_t TxMailbox;
-		uint8_t message[] ={1};
-		TxHeader.DLC = 1; //How many bytes do you want to send, tra 0 e 8; 0 byte oppure 8 byte, 0 è inutile
+		uint8_t message[8];
+		for(int i = 0; i<8;i++){
+		message[i] =Data[i];
+		}
+		TxHeader.DLC = 8; //How many bytes do you want to send, tra 0 e 8; 0 byte oppure 8 byte, 0 è inutile
 		TxHeader.StdId = 14; // Standard Identifier, va da 0 a 0x7FF
 		TxHeader.IDE = CAN_ID_STD; //Questo è sempre così, specifica che si stanno usando gli indirizzi standard
 		TxHeader.RTR = CAN_RTR_DATA; //DATA O REMOTE, non so cosa sia remote
