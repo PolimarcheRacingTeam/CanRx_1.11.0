@@ -57,10 +57,10 @@
 
 /* External variables --------------------------------------------------------*/
 extern CAN_HandleTypeDef hcan;
-extern CAN_RxHeaderTypeDef RxHeader;
-extern uint8_t Data;
 /* USER CODE BEGIN EV */
-
+extern CAN_RxHeaderTypeDef RxHeader;
+extern CAN_TxHeaderTypeDef TxHeader;
+extern uint8_t Data[8];
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -211,7 +211,22 @@ void CAN_RX0_IRQHandler(void)
   /* USER CODE END CAN_RX0_IRQn 0 */
   HAL_CAN_IRQHandler(&hcan);
   /* USER CODE BEGIN CAN_RX0_IRQn 1 */
-  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &RxHeader, &Data);
+  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &RxHeader, Data);
+
+  if(RxHeader.StdId == 17 && Data[0]>2){ //Manda un messagio Can Se l'indirizzo del messaggio Ricevuto è 17 e il data[0] è maggiore di Due
+
+		CAN_TxHeaderTypeDef TxHeader;
+		uint32_t TxMailbox;
+		uint8_t message[] ={1};
+		TxHeader.DLC = 1; //How many bytes do you want to send, tra 0 e 8; 0 byte oppure 8 byte, 0 è inutile
+		TxHeader.StdId = 14; // Standard Identifier, va da 0 a 0x7FF
+		TxHeader.IDE = CAN_ID_STD; //Questo è sempre così, specifica che si stanno usando gli indirizzi standard
+		TxHeader.RTR = CAN_RTR_DATA; //DATA O REMOTE, non so cosa sia remote
+
+		if(HAL_CAN_AddTxMessage(&hcan, &TxHeader, message, &TxMailbox) != HAL_OK){
+			Error_Handler();
+		}
+  }
   /* USER CODE END CAN_RX0_IRQn 1 */
 }
 
